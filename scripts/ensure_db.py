@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """Creates the application database if it does not exist. Runs before Django."""
 import os
-import sys
 
 import psycopg2
 from psycopg2 import sql

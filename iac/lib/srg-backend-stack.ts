@@ -23,6 +23,7 @@ interface SrgBackendStackProps extends cdk.StackProps {
     AWS_CLUSTER_ARN: string
     AWS_DEFAULT_SG: string
     AWS_VPC_ID: string
+    AWS_SUBNET_IDS: string
     ALB_LISTENER_ARN: string
   }
 }
@@ -87,7 +88,7 @@ export class SrgBackendStack extends cdk.Stack {
       launchType: 'FARGATE',
       networkConfiguration: {
         awsvpcConfiguration: {
-          subnets: vpc.publicSubnets.map(s => s.subnetId),
+          subnets: props.aws_env.AWS_SUBNET_IDS.split(','),
           securityGroups: [props.aws_env.AWS_DEFAULT_SG],
           assignPublicIp: 'ENABLED',
         },

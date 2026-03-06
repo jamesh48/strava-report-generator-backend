@@ -39,6 +39,7 @@ jobs:
           AWS_CLUSTER_ARN: ${{ vars.AWS_CLUSTER_ARN }}
           AWS_DEFAULT_SG: ${{ vars.AWS_DEFAULT_SG }}
           AWS_VPC_ID: ${{ vars.AWS_VPC_ID }}
+          AWS_SUBNET_IDS: ${{ vars.AWS_SUBNET_IDS }}
           ALB_LISTENER_ARN: ${{ vars.ALB_LISTENER_ARN }}
           STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
           STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
