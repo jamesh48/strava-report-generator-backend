@@ -105,9 +105,16 @@ export class SrgBackendStack extends cdk.Stack {
         parameters: runTaskParams,
         physicalResourceId: cr.PhysicalResourceId.of(`srg-migration-${migrationVersion}`),
       },
-      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
-      }),
+      policy: cr.AwsCustomResourcePolicy.fromStatements([
+        new iam.PolicyStatement({
+          actions: ['ecs:RunTask'],
+          resources: ['*'],
+        }),
+        new iam.PolicyStatement({
+          actions: ['iam:PassRole'],
+          resources: [taskRole.roleArn, executionRole.roleArn],
+        }),
+      ]),
       timeout: cdk.Duration.minutes(15),
     })
 
