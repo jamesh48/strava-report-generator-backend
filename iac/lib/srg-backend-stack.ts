@@ -175,7 +175,7 @@ export class SrgBackendStack extends cdk.Stack {
       targetGroups: [targetGroup],
       priority: 30,
       conditions: [
-        elbv2.ListenerCondition.hostHeaders(['srg-data.jameshrivnak.com']),
+        elbv2.ListenerCondition.hostHeaders(['data.stravareportgenerator.com']),
       ],
     })
 
