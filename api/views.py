@@ -11,6 +11,11 @@ from .services import add_all_activities, exchange_token, fetch_activity_stream,
 
 
 @api_view(['GET'])
+def healthcheck(request):
+    return Response({'status': 'ok'})
+
+
+@api_view(['GET'])
 def auth(request):
     client_id = os.environ.get('STRAVA_CLIENT_ID')
     redirect_uri = os.environ.get('STRAVA_REDIRECT_URI')

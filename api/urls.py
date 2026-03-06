@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import add_all_activities_view, auth, exchange_token_view, get_activity_stream, get_all_entries, get_athlete_stats, get_entry_kudos, get_individual_entry, get_logged_in_user, get_user_settings_view, put_activity_update, save_user_settings_view
+from .views import add_all_activities_view, auth, exchange_token_view, get_activity_stream, get_all_entries, get_athlete_stats, get_entry_kudos, get_individual_entry, get_logged_in_user, get_user_settings_view, healthcheck, put_activity_update, save_user_settings_view
 
 urlpatterns = [
+    path('healthcheck', healthcheck),
     path('auth', auth),
     path('exchange_token', exchange_token_view),
     path('getLoggedInUser', get_logged_in_user),
