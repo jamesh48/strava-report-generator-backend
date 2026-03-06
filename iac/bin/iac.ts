@@ -18,6 +18,7 @@ new SrgBackendStack(app, 'SrgBackendStack', {
     STRAVA_REDIRECT_URI: requireEnv('STRAVA_REDIRECT_URI'),
     FRONTEND_URL: requireEnv('FRONTEND_URL'),
     DJANGO_SECRET_KEY: requireEnv('DJANGO_SECRET_KEY'),
+    DB_PASSWORD: requireEnv('DB_PASSWORD'),
   },
   aws_env: {
     AWS_CLUSTER_ARN: requireEnv('AWS_CLUSTER_ARN'),

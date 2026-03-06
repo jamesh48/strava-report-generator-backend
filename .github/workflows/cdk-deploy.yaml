@@ -45,6 +45,7 @@ jobs:
           STRAVA_REDIRECT_URI: ${{ vars.STRAVA_REDIRECT_URI }}
           FRONTEND_URL: ${{ vars.FRONTEND_URL }}
           DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
       - name: Deployment complete
         run: echo "✅ SRG Backend deployed successfully"

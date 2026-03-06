@@ -17,6 +17,7 @@ interface SrgBackendStackProps extends cdk.StackProps {
     STRAVA_REDIRECT_URI: string
     FRONTEND_URL: string
     DJANGO_SECRET_KEY: string
+    DB_PASSWORD: string
   }
   aws_env: {
     AWS_CLUSTER_ARN: string
@@ -39,6 +40,7 @@ export class SrgBackendStack extends cdk.Stack {
       DB_NAME: dbName,
       DB_USER: 'postgres',
       DB_PORT: '5432',
+      DB_PASSWORD: props.containerEnv.DB_PASSWORD,
     }
 
     const vpc = ec2.Vpc.fromLookup(this, 'jh-imported-vpc', {
