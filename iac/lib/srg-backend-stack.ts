@@ -72,7 +72,7 @@ export class SrgBackendStack extends cdk.Stack {
 
     migrationTaskDef.addContainer('srg-migration-container', {
       image: ecs.ContainerImage.fromAsset('../'),
-      command: ['sh', '-c', 'python scripts/ensure_db.py && python manage.py migrate'],
+      command: ['sh', '-c', 'python manage.py migrate'],
       environment: { ...dbEnv, ...props.containerEnv },
       logging: new ecs.AwsLogDriver({
         streamPrefix: 'srg-migrations',
