@@ -14,7 +14,8 @@ class ActivitySerializer(serializers.ModelSerializer):
     elevHigh = serializers.FloatField(source='elev_high')
     elevLow = serializers.FloatField(source='elev_low')
     averageHeartrate = serializers.FloatField(source='average_heartrate')
-    maxHeartrate = serializers.FloatField(source='max_heartrate')
+    max_heartrate = serializers.FloatField(source='max_heartrate')
+    individualActivityCached = serializers.BooleanField(source='individual_activity_cached')
     locationCity = serializers.CharField(source='location_city')
     locationState = serializers.CharField(source='location_state')
     locationCountry = serializers.CharField(source='location_country')
@@ -29,6 +30,7 @@ class ActivitySerializer(serializers.ModelSerializer):
             'id', 'activityId', 'athleteId', 'name', 'type', 'startDate',
             'distance', 'movingTime', 'elapsedTime', 'averageSpeed', 'maxSpeed',
             'totalElevationGain', 'elevHigh', 'elevLow', 'averageHeartrate',
-            'maxHeartrate', 'locationCity', 'locationState', 'locationCountry',
+            'max_heartrate', 'locationCity', 'locationState', 'locationCountry',
             'achievementCount', 'kudosCount', 'commentCount', 'prCount',
+            'individualActivityCached',
         ]

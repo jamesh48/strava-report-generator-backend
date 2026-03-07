@@ -2,6 +2,7 @@ import time
 import os
 import requests
 
+from django.db import transaction
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth
 
@@ -261,3 +262,48 @@ def fetch_logged_in_user(athlete_id: str) -> dict:
     )
     response.raise_for_status()
     return response.json()
+
+
+
+@transaction.atomic
+def destroy_user(athlete_id):
+    Activity.objects.filter(athlete_id=athlete_id).delete()
+    StravaToken.objects.filter(athlete_id=athlete_id).delete()
+    UserSettings.objects.filter(athlete_id=athlete_id).delete()
+
+
+def fetch_general_individual_entry(athlete_id, activity_id):
+    activity = Activity.objects.get(athlete_id=athlete_id, activity_id=activity_id)
+    return {
+        'id': activity.activity_id,
+        'name': activity.name,
+        'type': activity.type,
+        'start_date': activity.start_date,
+        'distance': activity.distance,
+        'moving_time': activity.moving_time,
+        'elapsed_time': activity.elapsed_time,
+        'average_speed': activity.average_speed,
+        'max_speed': activity.max_speed,
+        'total_elevation_gain': activity.total_elevation_gain,
+        'elev_high': activity.elev_high,
+        'elev_low': activity.elev_low,
+        'average_heartrate': activity.average_heartrate,
+        'max_heartrate': activity.max_heartrate,
+        'achievement_count': activity.achievement_count,
+        'kudos_count': activity.kudos_count,
+        'comment_count': activity.comment_count,
+        'pr_count': activity.pr_count,
+        'calories': 0,
+        'start_date_local': activity.start_date,
+        'description': activity.description,
+        'best_efforts': activity.best_efforts,
+        'segment_efforts': activity.segment_efforts,
+        'laps': activity.laps,
+        'device_name': activity.device_name,
+        'gear': {'name': activity.gear_name},
+        'map': {'polyline': activity.map_polyline},
+        'photos': {
+            'count': 1 if activity.primary_photo_url else 0,
+            'primary': {'urls': {'600': activity.primary_photo_url}},
+        },
+    }

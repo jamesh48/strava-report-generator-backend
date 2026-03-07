@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import add_all_activities_view, auth, exchange_token_view, get_activity_stream, get_all_entries, get_athlete_stats, get_entry_kudos, get_individual_entry, get_logged_in_user, get_user_settings_view, healthcheck, put_activity_update, save_user_settings_view
+from .views import add_all_activities_view, auth, destroy_user_view, exchange_token_view, get_activity_stream, get_all_entries, get_athlete_stats, get_entry_kudos, get_general_individual_entry, get_individual_entry, get_logged_in_user, get_user_settings_view, healthcheck, put_activity_update, save_user_settings_view
 
 urlpatterns = [
     path('healthcheck', healthcheck),
@@ -15,4 +15,6 @@ urlpatterns = [
     path('activityUpdate', put_activity_update),
     path('getUserSettings', get_user_settings_view),
     path('saveUserSettings', save_user_settings_view),
+    path('destroyUser', destroy_user_view),
+    path('generalIndividualEntry/<str:athlete_id>/<str:activity_id>', get_general_individual_entry),
 ]

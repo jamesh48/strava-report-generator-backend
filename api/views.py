@@ -7,7 +7,7 @@ from rest_framework import status
 
 from .models import Activity, StravaToken
 from .serializers import ActivitySerializer
-from .services import add_all_activities, exchange_token, fetch_activity_stream, fetch_athlete_stats, fetch_entry_kudos, fetch_individual_entry, fetch_logged_in_user, fetch_monthly_stats, get_user_settings, save_user_settings, update_activity
+from .services import add_all_activities, destroy_user, exchange_token, fetch_activity_stream, fetch_athlete_stats, fetch_entry_kudos, fetch_general_individual_entry, fetch_individual_entry, fetch_logged_in_user, fetch_monthly_stats, get_user_settings, save_user_settings, update_activity
 
 
 @api_view(['GET'])
@@ -235,5 +235,25 @@ def get_logged_in_user(request):
         return Response(data)
     except StravaToken.DoesNotExist:
         return Response({'error': 'Athlete not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['DELETE'])
+def destroy_user_view(request):
+    athlete_id = request.query_params.get('srg_athlete_id')
+    if not athlete_id:
+        return Response({'error': 'srg_athlete_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+    destroy_user(athlete_id)
+    return Response({'status': 'success', 'message': 'User deleted'})
+
+
+@api_view(['GET'])
+def get_general_individual_entry(request, athlete_id, activity_id):
+    try:
+        data = fetch_general_individual_entry(athlete_id, activity_id)
+        return Response(data)
+    except Activity.DoesNotExist:
+        return Response({'error': 'Activity not found'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
