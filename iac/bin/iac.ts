@@ -24,7 +24,6 @@ new SrgBackendStack(app, 'SrgBackendStack', {
     AWS_CLUSTER_ARN: requireEnv('AWS_CLUSTER_ARN'),
     AWS_DEFAULT_SG: requireEnv('AWS_DEFAULT_SG'),
     AWS_VPC_ID: requireEnv('AWS_VPC_ID'),
-    AWS_SUBNET_IDS: requireEnv('AWS_SUBNET_IDS'),
     ALB_LISTENER_ARN: requireEnv('ALB_LISTENER_ARN'),
   },
   env: {

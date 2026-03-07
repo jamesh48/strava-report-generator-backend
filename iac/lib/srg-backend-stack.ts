@@ -1,5 +1,4 @@
 import * as cdk from 'aws-cdk-lib'
-import * as cr from 'aws-cdk-lib/custom-resources'
 import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import * as ecs from 'aws-cdk-lib/aws-ecs'
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2'
@@ -23,7 +22,6 @@ interface SrgBackendStackProps extends cdk.StackProps {
     AWS_CLUSTER_ARN: string
     AWS_DEFAULT_SG: string
     AWS_VPC_ID: string
-    AWS_SUBNET_IDS: string
     ALB_LISTENER_ARN: string
   }
 }
@@ -33,7 +31,6 @@ export class SrgBackendStack extends cdk.Stack {
     super(scope, id, props)
 
     const postgresIp = cdk.Fn.importValue('PostgresInstancePrivateIp')
-    const _databaseInstanceId = cdk.Fn.importValue('PostgresDatabaseInstanceId')
     const dbName = props.databaseName || 'strava_report'
 
     const dbEnv = {
@@ -64,63 +61,6 @@ export class SrgBackendStack extends cdk.Stack {
     const taskRole = iam.Role.fromRoleName(this, 'jh-ecs-task-definition-role', 'jh-ecs-task-definition-role')
     const executionRole = iam.Role.fromRoleName(this, 'jh-ecs-task-execution-role', 'jh-ecs-task-execution-role')
 
-    // ── Migration task ───────────────────────────────────────────────────────
-    const migrationTaskDef = new ecs.FargateTaskDefinition(this, 'srg-migration-task', {
-      taskRole,
-      executionRole,
-    })
-
-    migrationTaskDef.addContainer('srg-migration-container', {
-      image: ecs.ContainerImage.fromAsset('../'),
-      command: ['sh', '-c', 'python manage.py migrate'],
-      environment: { ...dbEnv, ...props.containerEnv },
-      logging: new ecs.AwsLogDriver({
-        streamPrefix: 'srg-migrations',
-        logRetention: RetentionDays.THREE_DAYS,
-      }),
-    })
-
-    const migrationVersion = Date.now().toString()
-
-    const runTaskParams = {
-      cluster: props.aws_env.AWS_CLUSTER_ARN,
-      taskDefinition: migrationTaskDef.taskDefinitionArn,
-      launchType: 'FARGATE',
-      networkConfiguration: {
-        awsvpcConfiguration: {
-          subnets: props.aws_env.AWS_SUBNET_IDS.split(','),
-          securityGroups: [props.aws_env.AWS_DEFAULT_SG],
-          assignPublicIp: 'ENABLED',
-        },
-      },
-    }
-
-    const migrationRunner = new cr.AwsCustomResource(this, 'RunDjangoMigrations', {
-      onCreate: {
-        service: 'ECS',
-        action: 'runTask',
-        parameters: runTaskParams,
-        physicalResourceId: cr.PhysicalResourceId.of(`srg-migration-${migrationVersion}`),
-      },
-      onUpdate: {
-        service: 'ECS',
-        action: 'runTask',
-        parameters: runTaskParams,
-        physicalResourceId: cr.PhysicalResourceId.of(`srg-migration-${migrationVersion}`),
-      },
-      policy: cr.AwsCustomResourcePolicy.fromStatements([
-        new iam.PolicyStatement({
-          actions: ['ecs:RunTask'],
-          resources: ['*'],
-        }),
-        new iam.PolicyStatement({
-          actions: ['iam:PassRole'],
-          resources: [taskRole.roleArn, executionRole.roleArn],
-        }),
-      ]),
-      timeout: cdk.Duration.minutes(15),
-    })
-
     // ── App service ──────────────────────────────────────────────────────────
     const appTaskDef = new ecs.FargateTaskDefinition(this, 'srg-backend-task', {
       taskRole,
@@ -129,7 +69,7 @@ export class SrgBackendStack extends cdk.Stack {
 
     appTaskDef.addContainer('srg-backend-container', {
       image: ecs.ContainerImage.fromAsset('../'),
-      command: ['python', 'manage.py', 'runserver', `0.0.0.0:${PORT}`],
+      command: ['sh', '-c', `python manage.py migrate && python manage.py runserver 0.0.0.0:${PORT}`],
       environment: { ...dbEnv, ...props.containerEnv },
       logging: new ecs.AwsLogDriver({
         streamPrefix: 'srg-backend',
@@ -146,9 +86,6 @@ export class SrgBackendStack extends cdk.Stack {
       capacityProviderStrategies: [{ capacityProvider: 'FARGATE_SPOT', weight: 1 }],
       enableExecuteCommand: true,
     })
-
-    // Ensure migrations complete before the service starts
-    appService.node.addDependency(migrationRunner)
 
     // ── ALB ──────────────────────────────────────────────────────────────────
     const listener = elbv2.ApplicationListener.fromLookup(this, 'imported-listener', {
@@ -192,6 +129,5 @@ export class SrgBackendStack extends cdk.Stack {
       'Allow SRG ECS tasks to connect to Postgres',
     )
 
-    new cdk.CfnOutput(this, 'MigrationVersion', { value: migrationVersion })
   }
 }
